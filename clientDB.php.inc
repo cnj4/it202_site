@@ -1,14 +1,18 @@
 #!/usr/bin/php
 <?php
+require_once("error.php.inc");
+
 class clientDB
 {
-
+//TODO: Change all errors to log insted of echo
     private $db;
     private $salt;
+    private $logger;
 
     public function __construct($iniFile)
     {
         $ini = parse_ini_file($iniFile, true);
+        $logger = new errorLogger("/var/log/it202.log");
 
         $this->db = new mysqli(
             $ini['loginDB']['host'],
@@ -19,9 +23,10 @@ class clientDB
 
         if ( $this->db->connect_errno > 0 )
         {
-            echo __file__.__line__."failed to connect to database re: ".$db->connect_error.PHP_EOL;
+            $this->logger->log(__file__.__line__."failed to connect to database re: ".$db->connect_error);
             exit(0);
         }
+
     }
 
     public function __destruct()
@@ -36,7 +41,7 @@ class clientDB
 
         if(!$result)
         {
-            echo "error with results: ".$this->db->error.PHP_EOL;
+            $this->logger->log("error with results: ".$this->db->error);
             return 0;
         }
         $client = $result->fetch_assoc();
@@ -52,13 +57,13 @@ class clientDB
 
         if($this->getClientId($name) == 0)
         {
-            echo "User $name does not exist".PHP_EOL;
+            $this->logger->log("User $name does not exist");
             return false;
         }
         $query = $this->db->real_escape_string("select * from clients where clientName='$name';");
         $result = $this->db->query($query);
         if(!$result){
-            echo "error with results: ".$this->db->error.PHP_EOL;
+            $this->logger->log("error with results: ".$this->db->error);
             return false;
         }
 
@@ -80,7 +85,7 @@ class clientDB
     public function addNewClient($name, $pw)
     {
         if ($this->getClientId($name) != 0){
-            echo "User $name already exists".PHP_EOL;
+            $this->logger->log("User $name already exists".PHP_EOL);
             return;
         }
         $now = date("Y-m-d h:i:s", time());
