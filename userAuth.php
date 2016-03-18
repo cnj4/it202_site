@@ -23,6 +23,7 @@ case "login":
     {
         $result = "Login Successful!";
         $link = "continue";
+        $login = $name;
     }
     else
     {
@@ -44,7 +45,8 @@ case "return":
 
 case "contirnue":
     //TODO:HTML continue to chat link
-    echo "Return Link goes here".PHP_EOL;
+    echo "<a href=\"chat.php\">Continue to chat</a>"..PHP_EOL;
+    echo "Continue Link goes here".PHP_EOL;
     break;
 }
 ?>
